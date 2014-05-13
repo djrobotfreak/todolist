@@ -5,19 +5,19 @@ var App = angular.module('App', ['ngRoute']);
 		$routeProvider
 			// route for the home page
 			.when('/', {
-				templateUrl : 'pages/home.html',
+				templateUrl : 'Static/home.html',
 				controller  : 'mainController'
 			})
 
 			// route for the about page
 			.when('/about', {
-				templateUrl : 'pages/about.html',
+				templateUrl : 'Static/about.html',
 				controller  : 'aboutController'
 			})
 
 			// route for the contact page
 			.when('/contact', {
-				templateUrl : 'pages/contact.html',
+				templateUrl : 'Static/contact.html',
 				controller  : 'contactController'
 			})
             .otherwise({
