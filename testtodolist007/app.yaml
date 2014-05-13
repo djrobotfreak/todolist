@@ -9,14 +9,16 @@ handlers:
   static_files: \1
   upload: (.*\.(gif|png|jpg|ico|js|css|txt|json))
 
+
+
 - url: /favicon\.ico
   static_files: favicon.ico
   upload: favicon\.ico
 
-- url: .*
+- url: /
   script: main.app
 
-- url: /_ah/spi/.*
+- url: /_ah/command/.*
   script: controller.APPLICATION
 
 libraries:
