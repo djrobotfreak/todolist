@@ -12,6 +12,9 @@ handlers:
 - url: .*
   script: main.app
 
+- url: /_ah/spi/.*
+  script: controller.APPLICATION
+
 libraries:
 - name: webapp2
   version: "2.5.2"
@@ -19,4 +22,8 @@ libraries:
 - name: jinja2
   version: latest
 
+- name: endpoints
+  version: 1.0
 
+- name: pycrypto
+  version: latest

@@ -29,7 +29,7 @@ class listItem(ndb.Model):
 
 class RESTfulPart(remote.Service):
     @endpoints.method(message_types.VoidMessage, Response,
-                     path='getList', http_method='GET',
+                     path='getlist', http_method='GET',
                      name='listItem.getList')
     def greeting_get(self, request):
        try:
@@ -38,12 +38,12 @@ class RESTfulPart(remote.Service):
            raise endpoints.NotFoundException('coudnt query correctly' %
                                              (request.id,))
 
-    @endpoints.method(message_types.VoidMessage, Response,
+    """@endpoints.method(message_types.VoidMessage, Response,
                   path='hellogreeting/{times}', http_method='POST',
                   name='listItem.addItem')
     def greetings_multiply(self, request):
         newListItem = listItem(title = request.message, checked=false)
-        return Response(message=request.message)
+        return Response(message=request.message)"""
 """
 
 
