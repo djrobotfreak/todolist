@@ -53,6 +53,18 @@ var App = angular.module('App', ['ngRoute']);
                     console.log('Error: ' + data);
                 });
         };
+        
+        // delete a todo after checking it
+        $scope.checkTodo = function(id) {
+            $http.post('/api/todos/' + id)
+                .success(function(data) {
+                    $scope.todos = data;
+                    console.log(data);
+                })
+                .error(function(data) {
+                    console.log('Error: ' + data);
+                });
+        };
     
         // delete a todo after checking it
         $scope.deleteTodo = function(id) {

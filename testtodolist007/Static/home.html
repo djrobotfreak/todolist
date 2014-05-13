@@ -12,7 +12,7 @@
 				<!-- LOOP OVER THE TODOS IN $scope.todos -->
 				<div class="checkbox" ng-repeat="todo in todos">
 					<label>
-						<input type="checkbox" ng-click="deleteTodo(todo._id)"> {{ todo.text }}
+						<input type="checkbox" ng-click="checkTodo(todo._id)"> {{ todo.text }} <button ng-click="deleteTodo(todo._id)">delete</button>
 					</label>
 				</div>
 
