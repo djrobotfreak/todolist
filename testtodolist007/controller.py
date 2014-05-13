@@ -19,7 +19,6 @@ class Response(messages.Message):
 
 class listItem(ndb.Model):
     title = ndb.StringProperty()
-    checked = ndb.BoolProperty()
 
 
 @endpoints.api(name='todolist', version='v1',
@@ -29,19 +28,24 @@ class listItem(ndb.Model):
 
 class RESTApi(remote.Service):
     @endpoints.method(message_types.VoidMessage, Response,
-                     path='getlist', http_method='GET',
-                     name='listItem.getList')
+                 path='getlist', http_method='GET',
+                 name='listItem.getList')
     def greeting_get(self, request):
-       try:
-           return listItem.query();
-       except (IndexError, TypeError):
-           raise endpoints.NotFoundException('coudnt query correctly' %
-                                             (request.id,))
+       return listItem.query()
+
+
     @endpoints.method(message_types.VoidMessage, Response,
                       path='derekgreeting', http_method='GET',
                       name='todolist.howdyDerek')
     def greetings_derek(self, request):
         return Response(message='howdy derek')
+
+    @endpoints.method(message_types.VoidMessage, Response,
+                      path='addItem', http_method='POST',
+                      name='listItem.addItem')
+    def greetings_derek(self, request):
+        item = listItem(content=request.message)
+        return Response(message=request.message)
 
 
 APPLICATION = endpoints.api_server([RESTApi])

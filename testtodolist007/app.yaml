@@ -18,7 +18,7 @@ handlers:
 - url: /
   script: main.app
 
-- url: /_ah/command/.*
+- url: /_ah/spi/.*
   script: controller.APPLICATION
 
 libraries:
