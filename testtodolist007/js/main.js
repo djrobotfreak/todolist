@@ -1,0 +1,2 @@
+//Initialize Smoothscroll
+smoothScroll.init();

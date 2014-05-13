@@ -19,6 +19,11 @@ import webapp2
 class MainHandler(webapp2.RequestHandler):
     def get(self):
         self.response.write('Hello world!')
+        
+print "Content-type: text/html"
+print
+with open('test.html') as f:
+  print f.read()
 
 app = webapp2.WSGIApplication([
     ('/', MainHandler)
