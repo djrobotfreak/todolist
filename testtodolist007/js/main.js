@@ -50,8 +50,8 @@ var App = angular.module('App', ['ngRoute']);
 
         // when submitting the add form, send the text to the node API
         $scope.createTodo = function() {
-					  console.log(message = JSON.stringify($scope.formData));
-            $http.post('/_ah/api/todolist/v1/addItem/', message = JSON.stringify($scope.formData))
+						console.log({"message" : $scope.formData.title})
+            $http.post('/_ah/api/todolist/v1/addItem/', {"message" : $scope.formData.title})
                 .success(function(data) {
                     $scope.formData = {}; // clear the form so our user is ready to enter another
                     $scope.todos = JSON.parse(data.message);
