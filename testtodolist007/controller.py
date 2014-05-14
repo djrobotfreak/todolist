@@ -26,7 +26,7 @@ class listItem:
         self.title = title
         self.id = listItem.id
         listItem.id += 1
-        self.checked = 'false'
+        self.checked = 'true'
 
 
 ITEMLIST = [listItem('take out the trash'), listItem('buy groceries')]

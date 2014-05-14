@@ -59,6 +59,7 @@ var App = angular.module('App', ['ngRoute']);
                 .success(function(data) {
                     $scope.formData = {}; // clear the form so our user is ready to enter another
                     $scope.todos = JSON.parse(data.message);
+										doChecks();
                     console.log(data);
                 })
                 .error(function(data) {
@@ -70,7 +71,7 @@ var App = angular.module('App', ['ngRoute']);
         $scope.checkTodo = function(id) {
             $http.post('/_ah/api/todolist/v1/checkItem/' + id)
                 .success(function(data) {
-                    $scope.todos = JSON.parse(data.message);
+                    //$scope.todos = JSON.parse(data.message);
 										doChecks();
                     console.log(data);
                 })
@@ -84,6 +85,7 @@ var App = angular.module('App', ['ngRoute']);
             $http.delete('/_ah/api/todolist/v1/removeItem/' + id)
                 .success(function(data) {
                     $scope.todos = JSON.parse(data.message);
+										doChecks();
                     console.log(data);
                 })
                 .error(function(data) {
