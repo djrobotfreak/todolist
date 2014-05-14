@@ -35,11 +35,6 @@ class MainHandler(webapp2.RequestHandler):
         template_values = {}
         self.response.write(template.render(template_values))
 
-print "Content-type: text/html"
-print
-with open('test.html') as f:
-  print f.read()
-
 app = webapp2.WSGIApplication([
     ('/', MainHandler)
 ], debug=True)
