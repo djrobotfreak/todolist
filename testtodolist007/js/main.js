@@ -36,12 +36,7 @@ var App = angular.module('App', ['ngRoute']);
             .success(function(data) {
                 $scope.todos = JSON.parse(data.message);
 								console.log($scope.todos)
-                if ($scope.todo.checked == true){
-                    isChecked = 'checked';
-                }
-                else{
-                    isChecked = '';
-                }
+                $scope.checkValue = true;
                 console.log(data);
             })
             .error(function(data) {
