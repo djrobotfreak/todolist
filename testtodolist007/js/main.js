@@ -36,7 +36,7 @@ var App = angular.module('App', ['ngRoute']);
             .success(function(data) {
                 $scope.todos = JSON.parse(data.message);
 								console.log($scope.todos)
-                $scope.checkValue = true;
+                $scope.checkValue = false;
                 console.log(data);
             })
             .error(function(data) {
