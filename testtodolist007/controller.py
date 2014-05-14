@@ -1,9 +1,11 @@
 import endpoints
+import logging
 from protorpc import messages
 from protorpc import message_types
 from protorpc import remote
 import json
 from google.appengine.ext import ndb
+from endpoints_proto_datastore.ndb import EndpointsModel
 import collections
 
 # TODO: Replace the following lines with client IDs obtained from the APIs
@@ -19,31 +21,30 @@ class Response(messages.Message):
     message = messages.StringField(1)
 
 
-class listItem:
-    id = 0
-
-    def __init__(self, title):
-        self.title = title
-        self.id = listItem.id
-        listItem.id += 1
-        self.checked = 'true'
-
-
-ITEMLIST = [listItem('take out the trash'), listItem('buy groceries')]
+class ListItem(ndb.Model):
+    title = ndb.StringProperty()
+    checked = ndb.BooleanProperty(default=False)
 
 
 def itemListToJSON():
-    itemlist = []
-    for item in ITEMLIST:
+    logging.error('hey im actually in the freaking function')
+    logging.error(type(ListItem))
+    qry = ListItem.query()
+    itemlist = qry.fetch(projection=[ListItem.id, ListItem.title, ListItem.checked])
+    logging.error(type(itemlist))
+    logging.debug(type(itemlist))
+
+    for item in itemlist:
         d = collections.OrderedDict()
         d['title'] = item.title
         d['id'] = item.id
+        logging.debug(item.id)
         d['checked'] = item.checked
         itemlist.append(d)
     return json.dumps(itemlist)
 
 
-@endpoints.api(name='todolist', version='v1',allowed_client_ids=[WEB_CLIENT_ID, ANDROID_CLIENT_ID, IOS_CLIENT_ID],
+@endpoints.api(name='todolist', version='v1', allowed_client_ids=[WEB_CLIENT_ID, ANDROID_CLIENT_ID, IOS_CLIENT_ID],
                audiences=[ANDROID_AUDIENCE])
 class RESTApi(remote.Service):
     @endpoints.method(message_types.VoidMessage, Response, path='getlist', http_method='GET', name='listItem.getList')
@@ -55,32 +56,29 @@ class RESTApi(remote.Service):
 
     ADD_ITEM = endpoints.ResourceContainer(Response)
 
-    @endpoints.method(ADD_ITEM, Response,path='addItem', http_method='POST', name='listItem.addItem')
+    @endpoints.method(ADD_ITEM, Response, path='addItem', http_method='POST', name='listItem.addItem')
     def add_item(self, request):
-        item = listItem(request.message)
-        ITEMLIST.append(item)
-        return Response(message=itemListToJSON())
+        ListItem(title=request.message)
+
+        return Response(message="hi")
 
     ID_RESOURCE = endpoints.ResourceContainer(message_types.VoidMessage, id=messages.IntegerField(1,
                                               variant=messages.Variant.INT32))
 
     @endpoints.method(ID_RESOURCE, Response, path='checkItem/{id}', http_method='POST', name='listItem.checkItem')
     def check_item(self, request):
-        for item in ITEMLIST:
-            if item.id == request.id:
-                if item.checked == 'true':
-                    item.checked = 'false'
-                else:
-                    item.checked = 'true'
-
+        item = ListItem.query(ListItem.id == request.id).fetch(1)
+        if item.checked:
+            item.checked = False
+        else:
+            item.checked = True
+        item.put()
         return Response(message=itemListToJSON())
 
     @endpoints.method(ID_RESOURCE, Response, path='removeItem/{id}', http_method='DELETE', name='listItem.removeItem')
     def remove_item(self, request):
-        for item in ITEMLIST:
-            if item.id == request.id:
-                ITEMLIST.remove(item)
-                break
+        item = ListItem.query(ListItem.id == request.id).fetch(1)
+        item.key.delete()
         return Response(message=itemListToJSON())
 
 
