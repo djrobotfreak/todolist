@@ -35,6 +35,12 @@ var App = angular.module('App', ['ngRoute']);
         $http.get('/_ah/api/todolist/v1/getList')
             .success(function(data) {
                 $scope.todos = data;
+                if ($scope.todo.checked == true){
+                    isChecked = 'checked';
+                }
+                else{
+                    isChecked = '';
+                }
                 console.log(data);
             })
             .error(function(data) {
