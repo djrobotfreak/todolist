@@ -32,9 +32,10 @@ var App = angular.module('App', ['ngRoute']);
         $scope.formData = {};
 
         // when landing on the page, get all todos and show them
-        $http.get('/_ah/api/todolist/v1/getList')
+        $http.get('/_ah/api/todolist/v1/getlist')
             .success(function(data) {
-                $scope.todos = data;
+                $scope.todos = JSON.parse(data.message);
+								console.log($scope.todos)
                 if ($scope.todo.checked == true){
                     isChecked = 'checked';
                 }
@@ -49,10 +50,11 @@ var App = angular.module('App', ['ngRoute']);
 
         // when submitting the add form, send the text to the node API
         $scope.createTodo = function() {
-            $http.post('/_ah/api/todolist/v1/addItem/', $scope.formData)
+					  console.log(message = JSON.stringify($scope.formData));
+            $http.post('/_ah/api/todolist/v1/addItem/', message = JSON.stringify($scope.formData))
                 .success(function(data) {
                     $scope.formData = {}; // clear the form so our user is ready to enter another
-                    $scope.todos = data;
+                    $scope.todos = JSON.parse(data.message);
                     console.log(data);
                 })
                 .error(function(data) {
@@ -64,7 +66,7 @@ var App = angular.module('App', ['ngRoute']);
         $scope.checkTodo = function(id) {
             $http.post('/_ah/api/todolist/v1/checkItem/' + id)
                 .success(function(data) {
-                    $scope.todos = data;
+                    $scope.todos = JSON.parse(data.message);
                     console.log(data);
                 })
                 .error(function(data) {
@@ -76,7 +78,7 @@ var App = angular.module('App', ['ngRoute']);
         $scope.deleteTodo = function(id) {
             $http.delete('/_ah/api/todolist/v1/removeItem/' + id)
                 .success(function(data) {
-                    $scope.todos = data;
+                    $scope.todos = JSON.parse(data.message);
                     console.log(data);
                 })
                 .error(function(data) {
