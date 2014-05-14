@@ -26,6 +26,7 @@ class listItem:
         self.title = title
         self.id = listItem.id
         listItem.id += 1
+        self.checked = 'false'
 
 
 ITEMLIST = [listItem('take out the trash'), listItem('buy groceries')]
@@ -37,6 +38,7 @@ def itemListToJSON():
         d = collections.OrderedDict()
         d['title'] = item.title
         d['id'] = item.id
+        d['checked'] = item.checked
         itemlist.append(d)
     return json.dumps(itemlist)
 
@@ -61,6 +63,17 @@ class RESTApi(remote.Service):
 
     ID_RESOURCE = endpoints.ResourceContainer(message_types.VoidMessage, id=messages.IntegerField(1,
                                               variant=messages.Variant.INT32))
+
+    @endpoints.method(ID_RESOURCE, Response, path='checkItem', http_method='POST', name='listItem.checkItem')
+    def check_item(self, request):
+        for item in ITEMLIST:
+            if item.id == request.id:
+                if item.checked == 'true':
+                    item.checked = 'false'
+                else:
+                    item.checked = 'true'
+
+        return Response(message=itemListToJSON())
 
     @endpoints.method(ID_RESOURCE, Response, path='removeItem/{id}', http_method='DELETE', name='listItem.removeItem')
     def remove_item(self, request):
