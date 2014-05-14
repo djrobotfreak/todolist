@@ -30,13 +30,22 @@ var App = angular.module('App', ['ngRoute']);
 	App.controller('mainController', function($scope, $http) {
 
         $scope.formData = {};
-
+				function doChecks(){
+					angular.forEach($scope.todos,function(value,index){
+					if(value.checked){
+						value.isChecked = 'checked';
+					}
+					else{
+						value.isChecked = '';
+					}
+			})
+				}
         // when landing on the page, get all todos and show them
         $http.get('/_ah/api/todolist/v1/getlist')
             .success(function(data) {
                 $scope.todos = JSON.parse(data.message);
 								console.log($scope.todos)
-                $scope.checkValue = false;
+								doChecks();
                 console.log(data);
             })
             .error(function(data) {
@@ -62,6 +71,7 @@ var App = angular.module('App', ['ngRoute']);
             $http.post('/_ah/api/todolist/v1/checkItem/' + id)
                 .success(function(data) {
                     $scope.todos = JSON.parse(data.message);
+										doChecks();
                     console.log(data);
                 })
                 .error(function(data) {
