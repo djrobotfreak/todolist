@@ -64,7 +64,7 @@ class RESTApi(remote.Service):
     ID_RESOURCE = endpoints.ResourceContainer(message_types.VoidMessage, id=messages.IntegerField(1,
                                               variant=messages.Variant.INT32))
 
-    @endpoints.method(ID_RESOURCE, Response, path='checkItem', http_method='POST', name='listItem.checkItem')
+    @endpoints.method(ID_RESOURCE, Response, path='checkItem/{id}', http_method='POST', name='listItem.checkItem')
     def check_item(self, request):
         for item in ITEMLIST:
             if item.id == request.id:
