@@ -1,5 +1,6 @@
 import endpoints
 import logging
+import datetime
 from protorpc import messages
 from protorpc import message_types
 from protorpc import remote
@@ -25,18 +26,24 @@ class Response(messages.Message):
 class ListItem(ndb.Model):
     title = ndb.StringProperty()
     checked = ndb.BooleanProperty(default=False)
+    timestamp = ndb.DateTimeProperty(default=datetime.datetime.now())
 
 
 def itemListToJSON():
-    time.sleep(.5)
+    dthandler = lambda obj: (
+        obj.isoformat()
+        if isinstance(obj, datetime.datetime)
+        or isinstance(obj, datetime.date)
+        else None)
     logging.error('hey im actually in the freaking function')
-    itemlist = ListItem.query().fetch(projection=[ListItem.title, ListItem.checked])
+    itemlist = ListItem.query().fetch(projection=[ListItem.title, ListItem.checked, ListItem.timestamp])
     printlist = []
     for item in itemlist:
-        printlist.append({'id': item.key.urlsafe(), 'title': item.title, 'checked': item.checked})
+        printlist.append({'id': item.key.urlsafe(), 'title': item.title, 'checked': item.checked,
+                          'timestamp': item.timestamp})
     logging.error('I made it')
     logging.error(printlist)
-    return json.dumps(printlist)
+    return json.dumps(printlist, default=dthandler)
 
 
 @endpoints.api(name='todolist', version='v1', allowed_client_ids=[WEB_CLIENT_ID, ANDROID_CLIENT_ID, IOS_CLIENT_ID],
@@ -55,7 +62,7 @@ class RESTApi(remote.Service):
     def add_item(self, request):
         newitem = ListItem(title=request.message)
         newitem.put()
-        return Response(message=itemListToJSON())
+        return Response(message=newitem.key.urlsafe())
 
     ID_RESOURCE = endpoints.ResourceContainer(message_types.VoidMessage, id=messages.StringField(1,
                                               variant=messages.Variant.STRING))
@@ -69,14 +76,17 @@ class RESTApi(remote.Service):
         else:
             item.checked = True
         item.put()
-        return Response(message=itemListToJSON())
+        return Response(message='ok')
 
     @endpoints.method(ID_RESOURCE, Response, path='removeItem/{id}', http_method='DELETE', name='listItem.removeItem')
     def remove_item(self, request):
-        key = ndb.Key(urlsafe=request.id)
-        item = key.get()
-        item.key.delete()
-        return Response(message=itemListToJSON())
+        try:
+            key = ndb.Key(urlsafe=request.id)
+            item = key.get()
+            item.key.delete()
+            return Response(message='ok')
+        except:
+            return Response(message='error')
 
 
 APPLICATION = endpoints.api_server([RESTApi])

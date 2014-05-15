@@ -13,4 +13,10 @@ indexes:
 - kind: ListItem
   properties:
   - name: checked
+  - name: timestamp
+  - name: title
+
+- kind: ListItem
+  properties:
+  - name: checked
   - name: title
