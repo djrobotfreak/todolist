@@ -1,3 +1,4 @@
+
 var App = angular.module('App', ['ngRoute']);
 
 	// configure our routes
@@ -38,7 +39,7 @@ var App = angular.module('App', ['ngRoute']);
         };
         
         // when landing on the page, get all todos and show them
-        $http.get('/_ah/api/todolist/v1/getlist')
+        $http.get('/_ah/api/todolist/v1/getlist/'+$.cookie('USER_TOKEN'))
             .success(function(data) {
                 $scope.todos = JSON.parse(data.message);
 								console.log($scope.todos)
@@ -51,7 +52,7 @@ var App = angular.module('App', ['ngRoute']);
         // when submitting the add form, send the text to the node API
         $scope.createTodo = function() {
 						console.log({"message" : $scope.formData.title})
-            $http.post('/_ah/api/todolist/v1/addItem/', {"message" : $scope.formData.title})
+            $http.post('/_ah/api/todolist/v1/addItem/'+$.cookie('USER_TOKEN')+'/'+$scope.formData.title)
                 .success(function(data) {
                     $scope.formData = {}; // clear the form so our user is ready to enter another
                     $scope.todos = JSON.parse(data.message);
@@ -65,7 +66,7 @@ var App = angular.module('App', ['ngRoute']);
 
         // check a todo after checking it
         $scope.checkTodo = function(id) {
-            $http.post('/_ah/api/todolist/v1/checkItem/' + id)
+            $http.post('/_ah/api/todolist/v1/checkItem/' + $.cookie('USER_TOKEN') + '/' + id)
                 .success(function(data) {
                     //$scope.todos = JSON.parse(data.message);
                     console.log(data);
@@ -77,10 +78,22 @@ var App = angular.module('App', ['ngRoute']);
 
         // delete a todo after deleting it
         $scope.deleteTodo = function(id) {
-            $http.delete('/_ah/api/todolist/v1/removeItem/' + id)
+            $http.delete('/_ah/api/todolist/v1/removeItem/' + $.cookie('USER_TOKEN') + '/' + id)
                 .success(function(data) {
                     $scope.todos = JSON.parse(data.message);
                     console.log(data);
+                })
+                .error(function(data) {
+                    console.log('Error: ' + data);
+                });
+        };
+        
+        $scope.login = function(user_name, password) {
+            $http.delete('/_ah/api/todolist/v1/auth/login/' + user_name + '/' + password)
+                .success(function(data) {
+                    $.cookie('USER_TOKEN', JSON.parse(data.message);)
+                    console.log(data);
+                    //debug credentials user:jakeruesink pass:jakeiscool
                 })
                 .error(function(data) {
                     console.log('Error: ' + data);
