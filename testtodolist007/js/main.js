@@ -30,22 +30,18 @@ var App = angular.module('App', ['ngRoute']);
 	App.controller('mainController', function($scope, $http) {
 
         $scope.formData = {};
-				function doChecks(){
-					angular.forEach($scope.todos,function(value,index){
-					if(value.checked){
-						value.isChecked = 'checked';
-					}
-					else{
-						value.isChecked = '';
-					}
-			})
-				}
+        
+        $scope.isitemchecked = function(checked){
+            if(checked === true){
+                return true;
+            }else{return false;}
+        };
+        
         // when landing on the page, get all todos and show them
         $http.get('/_ah/api/todolist/v1/getlist')
             .success(function(data) {
                 $scope.todos = JSON.parse(data.message);
 								console.log($scope.todos)
-								doChecks();
                 console.log(data);
             })
             .error(function(data) {
@@ -59,7 +55,7 @@ var App = angular.module('App', ['ngRoute']);
                 .success(function(data) {
                     $scope.formData = {}; // clear the form so our user is ready to enter another
                     $scope.todos = JSON.parse(data.message);
-										doChecks();
+                    //{checked:false, title:$scope.formData.title, timestamp:}
                     console.log(data);
                 })
                 .error(function(data) {
@@ -67,12 +63,11 @@ var App = angular.module('App', ['ngRoute']);
                 });
         };
 
-        // delete a todo after checking it
+        // check a todo after checking it
         $scope.checkTodo = function(id) {
             $http.post('/_ah/api/todolist/v1/checkItem/' + id)
                 .success(function(data) {
                     //$scope.todos = JSON.parse(data.message);
-										doChecks();
                     console.log(data);
                 })
                 .error(function(data) {
@@ -80,12 +75,11 @@ var App = angular.module('App', ['ngRoute']);
                 });
         };
 
-        // delete a todo after checking it
+        // delete a todo after deleting it
         $scope.deleteTodo = function(id) {
             $http.delete('/_ah/api/todolist/v1/removeItem/' + id)
                 .success(function(data) {
                     $scope.todos = JSON.parse(data.message);
-										doChecks();
                     console.log(data);
                 })
                 .error(function(data) {
