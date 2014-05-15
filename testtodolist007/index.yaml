@@ -20,3 +20,10 @@ indexes:
   properties:
   - name: checked
   - name: title
+
+- kind: ListItem
+  properties:
+  - name: user_key
+  - name: checked
+  - name: timestamp
+  - name: title

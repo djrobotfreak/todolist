@@ -1,6 +1,8 @@
 import endpoints
 import logging
 import datetime
+import hashlib
+import uuid
 from protorpc import messages
 from protorpc import message_types
 from protorpc import remote
@@ -26,48 +28,85 @@ class Response(messages.Message):
 class ListItem(ndb.Model):
     title = ndb.StringProperty()
     checked = ndb.BooleanProperty(default=False)
-    timestamp = ndb.DateTimeProperty(default=datetime.datetime.now())
+    timestamp = ndb.DateTimeProperty()
+    user_key = ndb.KeyProperty()
 
+class User(ndb.Model):
+    user_name = ndb.StringProperty()
+    hash_pass = ndb.StringProperty()
+    first_name = ndb.StringProperty()
+    last_name = ndb.StringProperty()
+    current_token = ndb.StringProperty()
+    previous_token = ndb.StringProperty()
+    time_stamp = ndb.DateTimeProperty()
 
-def itemListToJSON():
+def dumpJSON(item):
     dthandler = lambda obj: (
         obj.isoformat()
         if isinstance(obj, datetime.datetime)
         or isinstance(obj, datetime.date)
         else None)
-    logging.error('hey im actually in the freaking function')
-    itemlist = ListItem.query().fetch(projection=[ListItem.title, ListItem.checked, ListItem.timestamp])
-    printlist = []
-    for item in itemlist:
-        printlist.append({'id': item.key.urlsafe(), 'title': item.title, 'checked': item.checked,
-                          'timestamp': item.timestamp})
-    logging.error('I made it')
-    logging.error(printlist)
-    return json.dumps(printlist, default=dthandler)
+    logging.debug(item)
+    return json.dumps(item, dthandler)
+
+def get_key_from_token(token):
+    user = User.query().filter(User.current_token == token).get()
+    if user:
+        return user.key
+    return 0
+
+
+def itemListToJSON(token):
+
+    dthandler = lambda obj: (
+        obj.isoformat()
+        if isinstance(obj, datetime.datetime)
+        or isinstance(obj, datetime.date)
+        else None)
+    try:
+        itemlist = ListItem.query().filter(ListItem.user_key == get_key_from_token(token)).fetch(projection=[ListItem.title, ListItem.checked, ListItem.timestamp])
+        printlist = []
+        for item in itemlist:
+            printlist.append({'id': item.key.urlsafe(), 'title': item.title, 'checked': item.checked,
+                            'timestamp': item.timestamp.isoformat()})
+        logging.error('I made it')
+        logging.error(printlist)
+        return json.dumps(printlist, dthandler)
+        return 'error'
+    except:
+        return 'error'
 
 
 @endpoints.api(name='todolist', version='v1', allowed_client_ids=[WEB_CLIENT_ID, ANDROID_CLIENT_ID, IOS_CLIENT_ID],
                audiences=[ANDROID_AUDIENCE])
 class RESTApi(remote.Service):
-    @endpoints.method(message_types.VoidMessage, Response, path='getlist', http_method='GET', name='listItem.getList')
-    def greeting_get(self, request):
-        try:
-            return Response(message=itemListToJSON())
-        except:
-            return Response(message='Error with stupid json')
-
-    ADD_ITEM = endpoints.ResourceContainer(Response)
-
-    @endpoints.method(ADD_ITEM, Response, path='addItem', http_method='POST', name='listItem.addItem')
-    def add_item(self, request):
-        newitem = ListItem(title=request.message)
-        newitem.put()
-        return Response(message=newitem.key.urlsafe())
-
-    ID_RESOURCE = endpoints.ResourceContainer(message_types.VoidMessage, id=messages.StringField(1,
+    USER_TOKEN = endpoints.ResourceContainer(message_types.VoidMessage, token=messages.StringField(1,
                                               variant=messages.Variant.STRING))
 
-    @endpoints.method(ID_RESOURCE, Response, path='checkItem/{id}', http_method='POST', name='listItem.checkItem')
+    """TODO REQUESTS"""
+    @endpoints.method(USER_TOKEN, Response, path='getlist/{token}', http_method='GET', name='listItem.getList')
+    def greeting_get(self, request):
+        return Response(message=itemListToJSON(request.token))
+
+
+    ADD_ITEM = endpoints.ResourceContainer(message_types.VoidMessage,
+                                           token=messages.StringField(1, variant=messages.Variant.STRING),
+                                           title=messages.StringField(2, variant=messages.Variant.STRING))
+
+    @endpoints.method(ADD_ITEM, Response, path='addItem/{token}/{title}', http_method='POST', name='listItem.addItem')
+    def add_item(self, request):
+        key = get_key_from_token(request.token)
+        if key != 0:
+            newitem = ListItem(title=request.title, timestamp=datetime.datetime.now(), user_key=key)
+            newitem.put()
+        printitem = {'id': newitem.key.urlsafe(), 'timestamp': newitem.timestamp.isoformat()}
+        return Response(message=dumpJSON(printitem))
+
+    ID_RESOURCE = endpoints.ResourceContainer(message_types.VoidMessage,
+                                              id=messages.StringField(2, variant=messages.Variant.STRING),
+                                              token=messages.StringField(1, variant=messages.Variant.STRING))
+
+    @endpoints.method(ID_RESOURCE, Response, path='checkItem/{token}/{id}', http_method='POST', name='listItem.checkItem')
     def check_item(self, request):
         key = ndb.Key(urlsafe=request.id)
         item = key.get()
@@ -78,7 +117,7 @@ class RESTApi(remote.Service):
         item.put()
         return Response(message='ok')
 
-    @endpoints.method(ID_RESOURCE, Response, path='removeItem/{id}', http_method='DELETE', name='listItem.removeItem')
+    @endpoints.method(ID_RESOURCE, Response, path='removeItem/{token}/{id}', http_method='DELETE', name='listItem.removeItem')
     def remove_item(self, request):
         try:
             key = ndb.Key(urlsafe=request.id)
@@ -88,5 +127,40 @@ class RESTApi(remote.Service):
         except:
             return Response(message='error')
 
+
+
+    """USER REQUESTS"""
+
+    USER_PASS = endpoints.ResourceContainer(message_types.VoidMessage
+                                            , user_name=messages.StringField(1, variant=messages.Variant.STRING)
+                                            , password=messages.StringField(2, variant=messages.Variant.STRING))
+
+    @endpoints.method(USER_PASS, Response, path='auth/register/{user_name}/{password}',
+                      http_method='POST', name='auth.register')
+    def register_user(self, request):
+        user = User()
+        user.user_name = request.user_name
+        user.hash_pass = hashlib.sha224(request.password + "this is a random string to help in the salting progress "
+                                                           "blah").hexdigest()
+        user.put()
+        try:
+            return Response(message='ok')
+        except:
+            return Response(message='error')
+
+    @endpoints.method(USER_PASS, Response, path='auth/login/{user_name}/{password}',
+                      http_method='GET', name='auth.login')
+    def login_user(self, request):
+        user = User.query().filter(User.user_name == request.user_name).get()
+        logging.error(user)
+        if user:
+            if user.hash_pass == hashlib.sha224(request.password + "this is a random string to help in the salting"
+                                                                   " progress blah").hexdigest():
+                user.current_token = str(uuid.uuid4())
+                user.time_stamp = datetime.datetime.now()
+                user.put()
+                return Response(message=user.current_token)
+
+        return Response(message='error')
 
 APPLICATION = endpoints.api_server([RESTApi])
