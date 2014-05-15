@@ -10,16 +10,16 @@ var App = angular.module('App', ['ngRoute']);
 			})
 
 			// route for the about page
-			.when('/about', {
+			.when('/login', {
 
-				templateUrl : 'Static/about.html',
-				controller  : 'aboutController'
+				templateUrl : 'Static/login.html',
+				controller  : 'loginController'
 			})
 
 			// route for the contact page
-			.when('/contact', {
-				templateUrl : 'Static/contact.html',
-				controller  : 'contactController'
+			.when('/signup', {
+				templateUrl : 'Static/signup.html',
+				controller  : 'signupController'
 			})
             .otherwise({
                 redirectTo: '/'
@@ -89,13 +89,14 @@ var App = angular.module('App', ['ngRoute']);
 
 	});
 
-	App.controller('aboutController', function($scope) {
-		$scope.message = 'Look! I am an about page.';
-	});
-
-	App.controller('contactController', function($scope) {
-		$scope.message = 'Contact us! JK. This is just a demo.';
-	});
+//if controllers are needed for these pages
+//	App.controller('loginController', function($scope) {
+//		$scope.message = 'Look! I am an about page.';
+//	});
+//
+//	App.controller('signupController', function($scope) {
+//		$scope.message = 'Contact us! JK. This is just a demo.';
+//	});
 
 //Initialize Smoothscroll
 smoothScroll.init();
