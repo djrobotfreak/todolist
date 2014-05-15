@@ -24,6 +24,12 @@ class Response(messages.Message):
     """Greeting that stores a message."""
     message = messages.StringField(1)
 
+class UserCreds(messages.Message):
+    user_name = messages.StringField(1)
+    password = messages.StringField(2)
+    email = messages.StringField(3)
+    first_name = messages.StringField(4)
+    last_name = messages.StringField(5)
 
 class ListItem(ndb.Model):
     title = ndb.StringProperty()
@@ -35,6 +41,7 @@ class User(ndb.Model):
     user_name = ndb.StringProperty()
     hash_pass = ndb.StringProperty()
     first_name = ndb.StringProperty()
+    email = ndb.StringProperty()
     last_name = ndb.StringProperty()
     current_token = ndb.StringProperty()
     previous_token = ndb.StringProperty()
@@ -135,11 +142,15 @@ class RESTApi(remote.Service):
                                             , user_name=messages.StringField(1, variant=messages.Variant.STRING)
                                             , password=messages.StringField(2, variant=messages.Variant.STRING))
 
-    @endpoints.method(USER_PASS, Response, path='auth/register/{user_name}/{password}',
+    REGISTER = endpoints.ResourceContainer(UserCreds)
+    @endpoints.method(REGISTER, Response, path='auth/register',
                       http_method='POST', name='auth.register')
     def register_user(self, request):
         user = User()
         user.user_name = request.user_name
+        user.first_name = request.first_name
+        user.last_name = request.last_name
+        user.email = request.email
         user.hash_pass = hashlib.sha224(request.password + "this is a random string to help in the salting progress "
                                                            "blah").hexdigest()
         user.put()
