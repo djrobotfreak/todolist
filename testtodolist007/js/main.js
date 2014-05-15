@@ -104,7 +104,6 @@ var App = angular.module('App', ['ngRoute']);
 
 //if controllers are needed for these pages
 	App.controller('loginController', function($scope) {
-		$scope.message = 'Look! I am an about page.';
 
             $scope.login = function(user_name, password) {
             $http.get('/_ah/api/todolist/v1/auth/login/' + user_name + '/' + password)
