@@ -89,9 +89,9 @@ var App = angular.module('App', ['ngRoute']);
         };
         
         $scope.login = function(user_name, password) {
-            $http.delete('/_ah/api/todolist/v1/auth/login/' + user_name + '/' + password)
+            $http.get('/_ah/api/todolist/v1/auth/login/' + user_name + '/' + password)
                 .success(function(data) {
-                    $.cookie('USER_TOKEN', JSON.parse(data.message);)
+                    $.cookie('USER_TOKEN', JSON.parse(data.message))
                     console.log(data);
                     //debug credentials user:jakeruesink pass:jakeiscool
                 })
@@ -103,9 +103,22 @@ var App = angular.module('App', ['ngRoute']);
 	});
 
 //if controllers are needed for these pages
-//	App.controller('loginController', function($scope) {
-//		$scope.message = 'Look! I am an about page.';
-//	});
+	App.controller('loginController', function($scope) {
+		$scope.message = 'Look! I am an about page.';
+
+            $scope.login = function(user_name, password) {
+            $http.get('/_ah/api/todolist/v1/auth/login/' + user_name + '/' + password)
+                .success(function(data) {
+                    $.cookie('USER_TOKEN', JSON.parse(data.message))
+                    console.log(data);
+                    //debug credentials user:jakeruesink pass:jakeiscool
+                })
+                .error(function(data) {
+                    console.log('Error: ' + data);
+                });
+        };
+
+    });
 //
 //	App.controller('signupController', function($scope) {
 //		$scope.message = 'Contact us! JK. This is just a demo.';
