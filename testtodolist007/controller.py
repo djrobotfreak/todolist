@@ -5,6 +5,7 @@ from protorpc import message_types
 from protorpc import remote
 import json
 from google.appengine.ext import ndb
+import time
 from endpoints_proto_datastore.ndb import EndpointsModel
 import collections
 
@@ -27,21 +28,15 @@ class ListItem(ndb.Model):
 
 
 def itemListToJSON():
+    time.sleep(.5)
     logging.error('hey im actually in the freaking function')
-    logging.error(type(ListItem))
-    qry = ListItem.query()
-    itemlist = qry.fetch(projection=[ListItem.id, ListItem.title, ListItem.checked])
-    logging.error(type(itemlist))
-    logging.debug(type(itemlist))
-
+    itemlist = ListItem.query().fetch(projection=[ListItem.title, ListItem.checked])
+    printlist = []
     for item in itemlist:
-        d = collections.OrderedDict()
-        d['title'] = item.title
-        d['id'] = item.id
-        logging.debug(item.id)
-        d['checked'] = item.checked
-        itemlist.append(d)
-    return json.dumps(itemlist)
+        printlist.append({'id': item.key.urlsafe(), 'title': item.title, 'checked': item.checked})
+    logging.error('I made it')
+    logging.error(printlist)
+    return json.dumps(printlist)
 
 
 @endpoints.api(name='todolist', version='v1', allowed_client_ids=[WEB_CLIENT_ID, ANDROID_CLIENT_ID, IOS_CLIENT_ID],
@@ -58,16 +53,17 @@ class RESTApi(remote.Service):
 
     @endpoints.method(ADD_ITEM, Response, path='addItem', http_method='POST', name='listItem.addItem')
     def add_item(self, request):
-        ListItem(title=request.message)
+        newitem = ListItem(title=request.message)
+        newitem.put()
+        return Response(message=itemListToJSON())
 
-        return Response(message="hi")
-
-    ID_RESOURCE = endpoints.ResourceContainer(message_types.VoidMessage, id=messages.IntegerField(1,
-                                              variant=messages.Variant.INT32))
+    ID_RESOURCE = endpoints.ResourceContainer(message_types.VoidMessage, id=messages.StringField(1,
+                                              variant=messages.Variant.STRING))
 
     @endpoints.method(ID_RESOURCE, Response, path='checkItem/{id}', http_method='POST', name='listItem.checkItem')
     def check_item(self, request):
-        item = ListItem.query(ListItem.id == request.id).fetch(1)
+        key = ndb.Key(urlsafe=request.id)
+        item = key.get()
         if item.checked:
             item.checked = False
         else:
@@ -77,7 +73,8 @@ class RESTApi(remote.Service):
 
     @endpoints.method(ID_RESOURCE, Response, path='removeItem/{id}', http_method='DELETE', name='listItem.removeItem')
     def remove_item(self, request):
-        item = ListItem.query(ListItem.id == request.id).fetch(1)
+        key = ndb.Key(urlsafe=request.id)
+        item = key.get()
         item.key.delete()
         return Response(message=itemListToJSON())
 
