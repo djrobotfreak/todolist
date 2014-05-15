@@ -10,7 +10,7 @@
 			<div class="col-sm-4 col-sm-offset-4">
 
 				<!-- LOOP OVER THE TODOS IN $scope.todos -->
-				<div class="checkbox" ng-repeat="todo in todos">
+				<div class="checkbox" ng-repeat="todo in todos | orderBy:'timestamp'">
 					<label>
 						<input type="checkbox"  ng-checked="todo.isChecked" ng-click="checkTodo(todo.id)"> {{ todo.title }} <button class="btn btn-danger btn-sm delete_button" ng-click="deleteTodo(todo.id)"><span>x</span></button>
 					</label>
