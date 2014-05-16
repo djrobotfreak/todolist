@@ -156,6 +156,7 @@ class RESTApi(remote.Service):
         user.current_token = str(uuid.uuid4())
         user.time_stamp = datetime.datetime.now()
         user.put()
+        time.sleep(.25)
         try:
             return Response(message=user.current_token)
         except:
@@ -172,6 +173,7 @@ class RESTApi(remote.Service):
                 user.current_token = str(uuid.uuid4())
                 user.time_stamp = datetime.datetime.now()
                 user.put()
+                time.sleep(.5)
                 return Response(message=user.current_token)
 
         return Response(message='error')

@@ -29,7 +29,9 @@ var App = angular.module('App', ['ngRoute']);
 
 	// create the controller and inject Angular's $scope
 	App.controller('mainController', function($scope, $http) {
-
+        if(!checkLogin()){
+        window.location.replace("/#/login");
+        }
         $scope.formData = {};
         
         $scope.isitemchecked = function(checked){
@@ -157,18 +159,21 @@ var App = angular.module('App', ['ngRoute']);
         };
 	});
 
-//Initialize Smoothscroll
-smoothScroll.init();
-
 
 function checkLogin(){
-if($.cookie('USER_TOKEN') != undefined)
-    return true;
-else
-    return false;
+   
+    if($.cookie('USER_TOKEN') != undefined)
+        return true;
+    else
+        return false;
 
 }
 
 function logout(){
     $.removeCookie('USER_TOKEN');
+    window.location.replace("/#/login");
 }
+
+
+//Initialize Smoothscroll
+smoothScroll.init();
