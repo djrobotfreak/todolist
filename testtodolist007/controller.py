@@ -30,6 +30,7 @@ class UserCreds(messages.Message):
     email = messages.StringField(3)
     first_name = messages.StringField(4)
     last_name = messages.StringField(5)
+    current_token = messages.StringField(6)
 
 class ListItem(ndb.Model):
     title = ndb.StringProperty()
@@ -134,6 +135,13 @@ class RESTApi(remote.Service):
         except:
             return Response(message='error')
 
+    @endpoints.method(USER_TOKEN, Response, path='deleteChecked/{token}', http_method='DELETE', name='listItem.deleteChecked')
+    def delete_checked(self, request):
+        key = get_key_from_token(request.token)
+        items = ListItem.query(ListItem.user_key == key).filter(ListItem.checked).get()
+        for item in items:
+            item.key.delete()
+        return Response(message='ok')
 
 
     """USER REQUESTS"""
@@ -143,7 +151,7 @@ class RESTApi(remote.Service):
                                             , password=messages.StringField(2, variant=messages.Variant.STRING))
 
     REGISTER = endpoints.ResourceContainer(UserCreds)
-    @endpoints.method(REGISTER, Response, path='auth/register',
+    @endpoints.method(REGISTER, UserCreds, path='auth/register',
                       http_method='POST', name='auth.register')
     def register_user(self, request):
         user = User()
@@ -158,11 +166,11 @@ class RESTApi(remote.Service):
         user.put()
         time.sleep(.25)
         try:
-            return Response(message=user.current_token)
+            return UserCreds(current_token=user.current_token, first_name=user.first_name, last_name=user.last_name)
         except:
             return Response(message='error')
 
-    @endpoints.method(USER_PASS, Response, path='auth/login/{user_name}/{password}',
+    @endpoints.method(USER_PASS, UserCreds, path='auth/login/{user_name}/{password}',
                       http_method='GET', name='auth.login')
     def login_user(self, request):
         user = User.query().filter(User.user_name == request.user_name).get()
@@ -174,7 +182,7 @@ class RESTApi(remote.Service):
                 user.time_stamp = datetime.datetime.now()
                 user.put()
                 time.sleep(.5)
-                return Response(message=user.current_token)
+                return UserCreds(current_token=user.current_token, first_name=user.first_name, last_name=user.last_name)
 
         return Response(message='error')
 

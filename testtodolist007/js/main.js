@@ -1,4 +1,3 @@
-
 var App = angular.module('App', ['ngRoute']);
 
 	// configure our routes
@@ -26,6 +25,23 @@ var App = angular.module('App', ['ngRoute']);
                 redirectTo: '/'
             });
 	});
+
+    App.controller('navigationController', function($scope, $http){
+        $scope.checkLogin = function(){
+            return checkLogin();
+        }/*= function(){
+            if($.cookie('USER_TOKEN') != undefined)
+                return true;
+            else
+                return false;
+            
+            }
+            */
+        $scope.logout = function(){
+                $.removeCookie('USER_TOKEN');
+                window.location.replace("/#/login");
+            }
+    });
 
 	// create the controller and inject Angular's $scope
 	App.controller('mainController', function($scope, $http) {
@@ -101,19 +117,19 @@ var App = angular.module('App', ['ngRoute']);
                     console.log('Error: ' + data);
                 });
         };
-        
-        $scope.login = function(user_name, password) {
-            $http.get('/_ah/api/todolist/v1/auth/login/' + user_name + '/' + password)
+        $scope.clearCompleted = function() {
+            $http.delete('/_ah/api/todolist/v1/deleteChecked/'+$.cookie('USER_TOKEN'))
                 .success(function(data) {
-                    $.cookie('USER_TOKEN', JSON.parse(data.message))
-                    console.log(data);
-                    //debug credentials user:jakeruesink pass:jakeiscool
+                    for(var i = 0; i<$scope.todos.length; i++){
+                        if($scope.todos[i].checked){
+                            $scope.todos.splice(i, 1);
+                        }
+                    }
                 })
                 .error(function(data) {
                     console.log('Error: ' + data);
                 });
         };
-
 	});
 
 //if controllers are needed for these pages
@@ -124,8 +140,9 @@ var App = angular.module('App', ['ngRoute']);
         $http.get('/_ah/api/todolist/v1/auth/login/' + user_name + '/' + password)
             .success(function(data) {
                 console.log(data.message);
-                cookie = data.message;
+                cookie = data.current_token;
                 console.log(cookie);
+                $.cookie('first_name', data.first_name);
                 $.cookie('USER_TOKEN', cookie);
                 console.log(data);
                 window.location.replace("/#/home");
@@ -145,8 +162,10 @@ var App = angular.module('App', ['ngRoute']);
         $http.post('/_ah/api/todolist/v1/auth/register/',item)
             .success(function(data) {
                 console.log(data.message);
-                cookie = data.message;
+                cookie = data.current_token;
+                
                 console.log(cookie);
+                $.cookie('first_name', data.first_name);
                 $.cookie('USER_TOKEN', cookie);
                 console.log(data);
                 window.location.replace("/#/home");
@@ -158,22 +177,13 @@ var App = angular.module('App', ['ngRoute']);
             });
         };
 	});
-
-
 function checkLogin(){
-   
     if($.cookie('USER_TOKEN') != undefined)
         return true;
     else
         return false;
-
 }
-
-function logout(){
-    $.removeCookie('USER_TOKEN');
-    window.location.replace("/#/login");
-}
-
 
 //Initialize Smoothscroll
 smoothScroll.init();
+
