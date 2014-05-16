@@ -31,8 +31,8 @@ var App = angular.module('App', ['ngRoute']);
             return checkLogin();
         }
         
-        var first_name = $.cookie('first_name');
-        $('a.navbar-brand').prepend( first_name );
+        $scope.first_name = $.cookie('first_name');
+    
         
         $scope.logout = function(){
                 $.removeCookie('USER_TOKEN');
