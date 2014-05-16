@@ -30,6 +30,10 @@ var App = angular.module('App', ['ngRoute']);
         $scope.checkLogin = function(){
             return checkLogin();
         }
+        
+        $scope.name = function(){
+            return $.cookie('first_name');
+        }
         /*if($.cookie('first_name') != undefined)
             $scope.first_name = $.cookie('first_name');
         else
@@ -37,7 +41,7 @@ var App = angular.module('App', ['ngRoute']);
     
 
         
-        if($.cookie('first_name').length){$scope.first_name = $.cookie('first_name');}
+        //if($.cookie('first_name').length){$scope.first_name = $.cookie('first_name');}
         
 
         
