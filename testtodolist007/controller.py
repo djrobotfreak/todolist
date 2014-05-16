@@ -153,9 +153,11 @@ class RESTApi(remote.Service):
         user.email = request.email
         user.hash_pass = hashlib.sha224(request.password + "this is a random string to help in the salting progress "
                                                            "blah").hexdigest()
+        user.current_token = str(uuid.uuid4())
+        user.time_stamp = datetime.datetime.now()
         user.put()
         try:
-            return Response(message='ok')
+            return Response(message=user.current_token)
         except:
             return Response(message='error')
 

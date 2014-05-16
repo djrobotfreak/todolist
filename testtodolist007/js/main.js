@@ -41,6 +41,7 @@ var App = angular.module('App', ['ngRoute']);
         // when landing on the page, get all todos and show them
         $http.get('/_ah/api/todolist/v1/getlist/'+$.cookie('USER_TOKEN'))
             .success(function(data) {
+                console.log(data.message)
                 $scope.todos = JSON.parse(data.message);
 								console.log($scope.todos)
                 console.log(data);
@@ -54,10 +55,13 @@ var App = angular.module('App', ['ngRoute']);
 						console.log({"message" : $scope.formData.title})
             $http.post('/_ah/api/todolist/v1/addItem/'+$.cookie('USER_TOKEN')+'/'+$scope.formData.title)
                 .success(function(data) {
-                    $scope.formData = {}; // clear the form so our user is ready to enter another
-                    $scope.todos = JSON.parse(data.message);
+                    console.log(data.message)
+                    usable = JSON.parse(data.message);
+                    addme = {id: usable.id, checked: false, title: $scope.formData.title, timestamp: usable.timestamp};
+                    console.log($scope.todos);
+                    $scope.todos.push(addme);
                     //{checked:false, title:$scope.formData.title, timestamp:}
-                    console.log(data);
+                    $scope.formData = {}; // clear the form so our user is ready to enter another
                 })
                 .error(function(data) {
                     console.log('Error: ' + data);
@@ -80,7 +84,15 @@ var App = angular.module('App', ['ngRoute']);
         $scope.deleteTodo = function(id) {
             $http.delete('/_ah/api/todolist/v1/removeItem/' + $.cookie('USER_TOKEN') + '/' + id)
                 .success(function(data) {
-                    $scope.todos = JSON.parse(data.message);
+                    for (var i = 0; i < $scope.todos.length; i++)
+                    {
+                        if ($scope.todos[i].id == id)
+                        {
+                            $scope.todos.splice(i, 1);
+                            break;
+                        }
+                    }
+                   // $scope.todos = JSON.parse(data.message);
                     console.log(data);
                 })
                 .error(function(data) {
@@ -103,25 +115,46 @@ var App = angular.module('App', ['ngRoute']);
 	});
 
 //if controllers are needed for these pages
-	App.controller('loginController', function($scope) {
+	App.controller('loginController', function($scope, $http) {
 
-            $scope.login = function(user_name, password) {
-            $http.get('/_ah/api/todolist/v1/auth/login/' + user_name + '/' + password)
-                .success(function(data) {
-                    $.cookie('USER_TOKEN', JSON.parse(data.message))
-                    console.log(data);
-                    //debug credentials user:jakeruesink pass:jakeiscool
-                })
-                .error(function(data) {
-                    console.log('Error: ' + data);
-                });
+        $scope.login = function(user_name, password) {
+        console.log(user_name + ' ' +password)
+        $http.get('/_ah/api/todolist/v1/auth/login/' + user_name + '/' + password)
+            .success(function(data) {
+                console.log(data.message);
+                cookie = data.message;
+                console.log(cookie);
+                $.cookie('USER_TOKEN', cookie);
+                console.log(data);
+                window.location.replace("/#/home");
+                //debug credentials user:jakeruesink pass:jakeiscool
+
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
         };
 
     });
 //
-//	App.controller('signupController', function($scope) {
-//		$scope.message = 'Contact us! JK. This is just a demo.';
-//	});
+	App.controller('signupController', function($scope, $http) {
+		$scope.register = function(item) {
+        $http.post('/_ah/api/todolist/v1/auth/register/',item)
+            .success(function(data) {
+                console.log(data.message);
+                cookie = data.message;
+                console.log(cookie);
+                $.cookie('USER_TOKEN', cookie);
+                console.log(data);
+                window.location.replace("/#/home");
+                //debug credentials user:jakeruesink pass:jakeiscool
+
+            })
+            .error(function(data) {
+                console.log('Error: ' + data);
+            });
+        };
+	});
 
 //Initialize Smoothscroll
 smoothScroll.init();
