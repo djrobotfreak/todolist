@@ -138,7 +138,8 @@ class RESTApi(remote.Service):
     @endpoints.method(USER_TOKEN, Response, path='deleteChecked/{token}', http_method='DELETE', name='listItem.deleteChecked')
     def delete_checked(self, request):
         key = get_key_from_token(request.token)
-        items = ListItem.query(ListItem.user_key == key).filter(ListItem.checked).get()
+        items = ListItem.query(ListItem.user_key == key).filter(ListItem.checked == True).fetch()
+        logging.error(items)
         for item in items:
             item.key.delete()
         return Response(message='ok')

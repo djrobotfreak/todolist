@@ -123,6 +123,7 @@ var App = angular.module('App', ['ngRoute']);
                     for(var i = 0; i<$scope.todos.length; i++){
                         if($scope.todos[i].checked){
                             $scope.todos.splice(i, 1);
+                            i=0;
                         }
                     }
                 })
