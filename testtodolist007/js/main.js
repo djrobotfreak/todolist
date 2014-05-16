@@ -29,14 +29,11 @@ var App = angular.module('App', ['ngRoute']);
     App.controller('navigationController', function($scope, $http){
         $scope.checkLogin = function(){
             return checkLogin();
-        }/*= function(){
-            if($.cookie('USER_TOKEN') != undefined)
-                return true;
-            else
-                return false;
-            
-            }
-            */
+        }
+        
+        var first_name = $.cookie('first_name');
+        $('a.navbar-brand').prepend( first_name );
+        
         $scope.logout = function(){
                 $.removeCookie('USER_TOKEN');
                 window.location.replace("/#/login");
