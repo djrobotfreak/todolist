@@ -27,6 +27,20 @@ var App = angular.module('App', ['ngRoute']);
             });
 	});
 
+    App.controller('navigationController', function($scope, $http){
+        $scope.checkLogin = function(){
+            if($.cookie('USER_TOKEN') != undefined)
+                return true;
+            else
+                return false;
+            
+            }
+            
+        $scope.logout = function(){
+                $.removeCookie('USER_TOKEN');
+            }
+    };
+
 	// create the controller and inject Angular's $scope
 	App.controller('mainController', function($scope, $http) {
 
@@ -161,14 +175,3 @@ var App = angular.module('App', ['ngRoute']);
 smoothScroll.init();
 
 
-function checkLogin(){
-if($.cookie('USER_TOKEN') != undefined)
-    return true;
-else
-    return false;
-
-}
-
-function logout(){
-    $.removeCookie('USER_TOKEN');
-}

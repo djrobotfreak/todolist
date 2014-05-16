@@ -23,7 +23,7 @@
         <![endif]-->
 
 <header>
-			<nav class="navbar navbar-default">
+			<nav class="navbar navbar-default" ng-controller="navigationController as navigation">
 			<div class="container">
 				<div class="navbar-header">
 					<a class="navbar-brand" href="/">To-Do List Example</a>
@@ -34,7 +34,7 @@
 					<li><a href="#login">Login</a></li>
 					<li><a href="#signup">Signup</a></li>
 				</ul>
-				<button id="logoutbutton" ng-show="checkLogin()" ng-click="logOut()" type="button" class="btn btn-danger pull-right">Log Out</button>
+				<button id="logoutbutton" ng-show="navigation.checkLogin()" ng-click="navigation.logOut()" type="button" class="btn btn-danger pull-right">Log Out</button>
 			</div>
 			</nav>
 </header>
