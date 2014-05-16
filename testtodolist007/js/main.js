@@ -139,6 +139,7 @@ var App = angular.module('App', ['ngRoute']);
 //
 	App.controller('signupController', function($scope, $http) {
 		$scope.register = function(item) {
+        console.log(item)
         $http.post('/_ah/api/todolist/v1/auth/register/',item)
             .success(function(data) {
                 console.log(data.message);
@@ -158,3 +159,16 @@ var App = angular.module('App', ['ngRoute']);
 
 //Initialize Smoothscroll
 smoothScroll.init();
+
+
+function checkLogin(){
+if($.cookie('USER_TOKEN') != undefined)
+    return true;
+else
+    return false;
+
+}
+
+function logout(){
+    $.removeCookie('USER_TOKEN');
+}
