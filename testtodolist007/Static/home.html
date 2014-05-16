@@ -15,6 +15,7 @@
 						<input type="checkbox"  ng-checked="isitemchecked(todo.checked)" ng-click="checkTodo(todo.id)"> {{ todo.title }} <button class="btn btn-danger btn-sm delete_button" ng-click="deleteTodo(todo.id)"><span>x</span></button>
 					</label>
 				</div>
+				<button type="button" ng-click="clearCompleted()" class="btn btn-warning btn-sm btn-block">Clear Completed Tasks</button>
 			</div>
 		</div>
 
@@ -23,8 +24,6 @@
 			<div class="col-sm-8 col-sm-offset-2 text-center">
 				<form>
 					<div class="form-group">
-
-						<!-- BIND THIS VALUE TO formData.text IN ANGULAR -->
 						<input type="text" class="form-control input-lg text-center" placeholder="add a todo" ng-model="formData.title" required>
 					</div>
 
