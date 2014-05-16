@@ -91,6 +91,14 @@ var App = angular.module('App', ['ngRoute']);
             $http.post('/_ah/api/todolist/v1/checkItem/' + $.cookie('USER_TOKEN') + '/' + id)
                 .success(function(data) {
                     //$scope.todos = JSON.parse(data.message);
+                    for(var i = 0; i<$scope.todos.length; i++){
+                        if($scope.todos[i].id == id){
+                            if($scope.todos[i].checked){
+                                $scope.todos[i].checked = false;}
+                            else{
+                                $scope.todos[i].checked = true;}
+                        }
+                    }
                     console.log(data);
                 })
                 .error(function(data) {
@@ -121,11 +129,13 @@ var App = angular.module('App', ['ngRoute']);
             $http.delete('/_ah/api/todolist/v1/deleteChecked/'+$.cookie('USER_TOKEN'))
                 .success(function(data) {
                     for(var i = 0; i<$scope.todos.length; i++){
+                        console.log(i)
                         if($scope.todos[i].checked){
                             $scope.todos.splice(i, 1);
                             i=0;
                         }
                     }
+                    console.log($scope.todos)
                 })
                 .error(function(data) {
                     console.log('Error: ' + data);
