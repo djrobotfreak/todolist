@@ -31,8 +31,8 @@ var App = angular.module('App', ['ngRoute']);
             return checkLogin();
         }
         
-        $scope.first_name = $.cookie('first_name');
-    
+        if($.cookie('first_name').length){$scope.first_name = $.cookie('first_name');}
+        
         
         $scope.logout = function(){
                 $.removeCookie('USER_TOKEN');
