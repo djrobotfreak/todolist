@@ -30,11 +30,16 @@ var App = angular.module('App', ['ngRoute']);
         $scope.checkLogin = function(){
             return checkLogin();
         }
-        if($.cookie('first_name') != undefined)
+        /*if($.cookie('first_name') != undefined)
             $scope.first_name = $.cookie('first_name');
         else
-            $scope.first_name = '';
+            $scope.first_name = '';*/
     
+
+        
+        if($.cookie('first_name').length){$scope.first_name = $.cookie('first_name');}
+        
+
         
         $scope.logout = function(){
                 $.removeCookie('USER_TOKEN');
